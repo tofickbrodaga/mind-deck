@@ -41,11 +41,26 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
     
+    # Инициализация Redis (брокер сообщений)
+    try:
+        from infrastructure.services.cache_service import cache_service
+        await cache_service.connect()
+        logger.info("Redis cache connected")
+    except Exception as e:
+        logger.warning(f"Failed to connect to Redis: {e}")
+    
     yield
     
     # Shutdown
     logger.info(f"Shutting down {settings.app_name}")
-    # Здесь можно добавить дополнительную логику очистки
+    
+    # Закрытие соединений
+    try:
+        from infrastructure.services.cache_service import cache_service
+        await cache_service.disconnect()
+        logger.info("Redis cache disconnected")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:

@@ -81,8 +81,6 @@ class CacheService:
         except Exception:
             return False
 
-
-# Глобальный экземпляр (singleton)
 cache_service = CacheService()
 
 

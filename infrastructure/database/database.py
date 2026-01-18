@@ -5,14 +5,11 @@ from typing import AsyncGenerator
 
 from infrastructure.config import settings
 
-# Create async engine
 engine = create_async_engine(
     settings.database_url,
     echo=settings.debug,
     future=True,
 )
-
-# Create async session factory
 AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,

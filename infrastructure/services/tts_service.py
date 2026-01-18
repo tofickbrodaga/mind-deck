@@ -1,4 +1,5 @@
 import os
+from typing import List
 from uuid import UUID
 from gtts import gTTS
 from infrastructure.config import settings
@@ -7,7 +8,7 @@ from infrastructure.config import settings
 class TTSService:
     """Сервис для генерации аудио с помощью Text-to-Speech"""
     
-    # Список поддерживаемых языков (gTTS поддерживает 50+ языков)
+    # Список поддерживаемых языков
     SUPPORTED_LANGUAGES = {
         'ru': 'Russian',
         'en': 'English',
@@ -86,20 +87,15 @@ class TTSService:
         """
         if language not in self.SUPPORTED_LANGUAGES:
             raise ValueError(f"Language {language} is not supported")
-        
-        # Создаем директорию для аудио, если её нет
         audio_dir = os.path.join(settings.upload_dir, "audio")
         os.makedirs(audio_dir, exist_ok=True)
-        
-        # Генерируем аудио
+
         tts = gTTS(text=text, lang=language, slow=False)
-        
-        # Сохраняем файл
+
         audio_filename = f"{card_id}_{language}.mp3"
         audio_path = os.path.join(audio_dir, audio_filename)
         tts.save(audio_path)
-        
-        # Возвращаем относительный путь (в реальном приложении можно использовать S3 или CDN)
+
         return f"/api/v1/media/audio/{audio_filename}"
     
     def get_supported_languages(self) -> List[dict]:

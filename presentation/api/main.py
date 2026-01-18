@@ -9,7 +9,6 @@ from fastapi.responses import JSONResponse
 from infrastructure.config import settings
 from presentation.api.routers import decks, cards, study, users, import_router, tts_router
 
-# Настройка логирования
 import os
 log_handlers = [logging.StreamHandler()]
 if settings.log_file:
@@ -29,19 +28,16 @@ shutdown_event = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
     logger.info(f"Environment: {settings.environment}")
-    
-    # Инициализация БД
+
     try:
         from infrastructure.database.database import init_db
         await init_db()
         logger.info("Database initialized")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
-    
-    # Инициализация Redis (брокер сообщений)
+
     try:
         from infrastructure.services.cache_service import cache_service
         await cache_service.connect()
@@ -50,11 +46,9 @@ async def lifespan(app: FastAPI):
         logger.warning(f"Failed to connect to Redis: {e}")
     
     yield
-    
-    # Shutdown
+
     logger.info(f"Shutting down {settings.app_name}")
-    
-    # Закрытие соединений
+
     try:
         from infrastructure.services.cache_service import cache_service
         await cache_service.disconnect()
@@ -104,7 +98,6 @@ def create_app() -> FastAPI:
     async def health():
         return {"status": "healthy"}
 
-    # Обработка ошибок
     @app.exception_handler(Exception)
     async def global_exception_handler(request, exc):
         logger.error(f"Unhandled exception: {exc}", exc_info=True)
@@ -118,8 +111,6 @@ def create_app() -> FastAPI:
 
 app = create_app()
 
-
-# Graceful shutdown handler
 def signal_handler(signum, frame):
     logger.info(f"Received signal {signum}, initiating graceful shutdown...")
     sys.exit(0)

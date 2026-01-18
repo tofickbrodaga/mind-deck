@@ -1,0 +1,15 @@
+{
+  "name": "mind-deck",
+  "version": "1.0.0",
+  "description": "MindDeck - система изучения с карточками",
+  "scripts": {
+    "start": "./start.sh",
+    "dev": "make dev",
+    "backend": "make start-backend",
+    "frontend": "cd frontend && npm run dev",
+    "install-all": "pip install -r requirements.txt && cd frontend && npm install"
+  },
+  "keywords": ["learning", "flashcards", "fsrs"],
+  "author": "",
+  "license": "MIT"
+}

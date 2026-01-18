@@ -47,8 +47,7 @@ class FSRSService:
             stability = self.initial_stability * (1 + quality - 3)
         else:
             stability = self.initial_stability * 0.5
-        
-        # Вычисляем следующий интервал
+
         interval = self._calculate_interval(stability, quality)
         
         state.stability = stability
@@ -80,12 +79,9 @@ class FSRSService:
         # Обновляем сложность
         difficulty = state.difficulty - 0.2 + (4 - quality) * 0.1
         difficulty = max(0.1, min(1.0, difficulty))
-        
-        # Обновляем ease factor
         ease_factor = state.ease_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
         ease_factor = max(1.3, min(2.5, ease_factor))
-        
-        # Вычисляем новый интервал
+
         interval = self._calculate_interval(stability, quality)
         
         state.stability = stability

@@ -170,8 +170,7 @@ async def study_multiple_choice(
     use_case = StudyMultipleChoiceUseCase(card_repo, deck_repo, review_card_use_case)
     
     card, options = await use_case.execute(deck_id, card_id)
-    
-    # Находим индекс правильного ответа
+
     correct_index = options.index(card.back)
     
     return StudyMultipleChoiceResponse(
@@ -213,8 +212,7 @@ async def study_write_check(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Card not found"
         )
-    
-    # Проверяем права доступа
+
     deck_repo = DeckRepository(db)
     deck = await deck_repo.get_by_id(card.deck_id)
     if deck.user_id != current_user.id:
@@ -227,8 +225,7 @@ async def study_write_check(
     use_case = StudyWriteUseCase(card_repo, review_card_use_case)
     
     is_correct, quality = await use_case.check_answer(write_data.card_id, write_data.answer)
-    
-    # Обновляем карточку с оценкой
+
     await review_card_use_case.execute(write_data.card_id, quality)
     
     return StudyWriteResponse(
@@ -267,8 +264,7 @@ async def study_match(
     
     terms = [pair[0] for pair in pairs]
     definitions = [pair[1] for pair in pairs]
-    
-    # Перемешиваем для игры
+
     import random
     random.shuffle(terms)
     random.shuffle(definitions)

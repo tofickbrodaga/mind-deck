@@ -132,8 +132,7 @@ async def get_card(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Card not found"
         )
-    
-    # Проверяем права доступа через набор
+
     deck_repo = DeckRepository(db)
     deck = await deck_repo.get_by_id(card.deck_id)
     if not deck:
@@ -168,8 +167,7 @@ async def update_card(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Card not found"
         )
-    
-    # Проверяем права доступа
+
     deck_repo = DeckRepository(db)
     deck = await deck_repo.get_by_id(card.deck_id)
     if deck.user_id != current_user.id:
@@ -204,8 +202,7 @@ async def delete_card(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Card not found"
         )
-    
-    # Проверяем права доступа
+
     deck_repo = DeckRepository(db)
     deck = await deck_repo.get_by_id(card.deck_id)
     if deck.user_id != current_user.id:
@@ -227,8 +224,7 @@ async def review_card(
 ):
     """Отметить карточку как просмотренную"""
     card_repo = CardRepository(db)
-    
-    # Проверяем права доступа
+
     card = await card_repo.get_by_id(card_id)
     if not card:
         raise HTTPException(

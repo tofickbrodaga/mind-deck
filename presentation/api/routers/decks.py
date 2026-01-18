@@ -38,8 +38,7 @@ async def create_deck(
         title=deck_data.title,
         description=deck_data.description,
     )
-    
-    # Инвалидируем кэш списка наборов пользователя
+
     cache_key = f"user_decks:{current_user.id}"
     await cache.delete(cache_key)
     
@@ -61,7 +60,6 @@ async def get_user_decks(
     cache: CacheService = Depends(get_cache),
 ):
     """Получить все наборы карточек пользователя"""
-    # Проверяем кэш
     cache_key = f"user_decks:{current_user.id}"
     cached_decks = await cache.get(cache_key)
     if cached_decks:
@@ -85,8 +83,7 @@ async def get_user_decks(
         )
         for deck in decks
     ]
-    
-    # Кэшируем результат на 5 минут
+
     await cache.set(cache_key, [deck.model_dump() for deck in result], ttl=300)
     
     return result
@@ -108,8 +105,7 @@ async def get_deck(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Deck not found"
         )
-    
-    # Проверяем права доступа
+
     if deck.user_id != current_user.id and not deck.is_public:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

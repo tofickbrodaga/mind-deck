@@ -27,8 +27,7 @@ async def generate_card_audio(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Card not found"
         )
-    
-    # Проверяем права доступа через набор
+
     from infrastructure.repositories.deck_repository import DeckRepository
     deck_repo = DeckRepository(db)
     deck = await deck_repo.get_by_id(card.deck_id)
@@ -43,16 +42,13 @@ async def generate_card_audio(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied"
         )
-    
-    # Выбираем текст для озвучки
+
     text = card.front if side == "front" else card.back
     
     tts_service = TTSService()
     audio_url = await tts_service.generate_audio(text, language, card_id)
-    
-    # Обновляем карточку с URL аудио
+
     if side == "front":
-        # Можно сохранить отдельные URL для front и back, но для упрощения используем один
         card.audio_url = audio_url
     else:
         card.audio_url = audio_url

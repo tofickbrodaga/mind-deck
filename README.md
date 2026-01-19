@@ -13,6 +13,11 @@ make up
 docker-compose up -d
 ```
 
+```bash
+source .venv/bin/activate
+pytest --cov=. --cov-report=term-missing
+```
+
 - ✅ PostgreSQL (БД)
 - ✅ Redis (кэш)
 - ✅ Бэкенд на http://localhost:8000

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from uuid import UUID
@@ -11,42 +12,29 @@ from infrastructure.security import verify_password, get_password_hash, create_a
 
 router = APIRouter()
 
+security = HTTPBearer()
 
-def get_token(authorization: Optional[str] = Header(None)) -> str:
-    """Извлечь токен из заголовка Authorization"""
-    if authorization is None:
+
+async def get_current_user_dependency(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Dependency для получения текущего пользователя из JWT токена"""
+    if not credentials or not credentials.credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    try:
-        scheme, token = authorization.split()
-        if scheme.lower() != "bearer":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication scheme",
-            )
-        return token
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authorization header",
-        )
 
+    token = credentials.credentials
 
-async def get_current_user_dependency(
-    token: str = Depends(get_token),
-    db: AsyncSession = Depends(get_db),
-) -> User:
-    """Dependency для получения текущего пользователя из JWT токена"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     try:
         payload = decode_token(token)
         user_id: str = payload.get("sub")

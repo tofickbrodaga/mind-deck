@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import Field
 from typing import Optional
 
 
@@ -11,23 +12,23 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
-    database_url: str = "postgresql+asyncpg://minddeck_user:minddeck_password@localhost:5432/minddeck_db"
-    database_url_sync: str = "postgresql://minddeck_user:minddeck_password@localhost:5432/minddeck_db"
+    database_url: str = Field(..., env="DATABASE_URL")
+    database_url_sync: str = Field(..., env="DATABASE_URL_SYNC")
 
-    secret_key: str = "your-secret-key-here-change-in-production"
+    secret_key: str = Field(..., env="SECRET_KEY")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
-    google_cloud_api_key: Optional[str] = None
-    tts_language: str = "ru"
+    google_cloud_api_key: Optional[str] = Field(None, env="GOOGLE_CLOUD_API_KEY")
+    tts_language: str = Field("ru", env="TTS_LANGUAGE")
 
-    redis_url: Optional[str] = "redis://localhost:6379/0"
+    redis_url: Optional[str] = Field(None, env="REDIS_URL")
 
-    log_level: str = "INFO"
-    log_file: str = "logs/app.log"
+    log_level: str = Field("INFO", env="LOG_LEVEL")
+    log_file: Optional[str] = Field("logs/app.log", env="LOG_FILE")
 
     max_upload_size: int = 10485760
-    upload_dir: str = "uploads"
+    upload_dir: str = Field("uploads", env="UPLOAD_DIR")
 
     class Config:
         env_file = ".env"

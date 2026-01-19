@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.openapi.utils import get_openapi
 
 from infrastructure.config import settings
 from presentation.api.routers import decks, cards, study, users, import_router, tts_router
@@ -67,6 +68,27 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json",
         lifespan=lifespan,
     )
+
+    def custom_openapi():
+        if app.openapi_schema:
+            return app.openapi_schema
+        openapi_schema = get_openapi(
+            title=app.title,
+            version=app.version,
+            description=app.description,
+            routes=app.routes,
+        )
+        openapi_schema.setdefault("components", {})
+        security_schemes = openapi_schema["components"].setdefault("securitySchemes", {})
+        security_schemes["bearerAuth"] = {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+        app.openapi_schema = openapi_schema
+        return app.openapi_schema
+
+    app.openapi = custom_openapi
 
     # CORS middleware
     app.add_middleware(
